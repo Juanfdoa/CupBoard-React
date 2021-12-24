@@ -3,6 +3,8 @@ import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Modal, ModalFooter,ModalHeader, ModalBody} from "reactstrap"
 import swal from 'sweetalert';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faTrashAlt, faEdit, faWindowClose, faSave} from '@fortawesome/free-solid-svg-icons';
 
 function Categories() {
 const [categories, setCategories]=useState([]);
@@ -59,8 +61,9 @@ const postRequest = async () =>{
    delete categorySelected.id
    await axios.post(url, categorySelected, {headers:{'Authorization': 'Bearer '+ token}})
    .then(response =>{
-      setData(data.concat(response.data));
-      console.log(response.data.$values);
+      //setData(data.concat(response.data));
+      //console.log(response.data.$values);
+      getRequest();
       openCloseModalInsert();
    }).catch(error => {
       console.log(error);
@@ -77,6 +80,7 @@ const postRequest = async () =>{
             category.name = answer.name;
          }
       });
+      getRequest();
       openCloseModalEdite();
    }).catch(error => {
       console.log(error);
@@ -87,6 +91,7 @@ const deleteRequest = async () =>{
    await axios.delete(url + "/" + categorySelected.id, {headers:{'Authorization': 'Bearer '+ token}})
    .then(response =>{
       setData(data.filter(category => category.id !== response.data));
+      getRequest();
       openCloseModalDelete();
    }).catch(error=>{
       console.log(error);
@@ -125,9 +130,10 @@ const Authorization=()=>{
 
 
 return(
-   <div className="App">
+   <div className="App container">
          {user === null && Authorization()}
       <div className="container">
+         <h1>Categories</h1>
          <div className="row">
             <div className="col-md-6">
             <button onClick={()=>openCloseModalInsert()} className="btn btn-success" >Insert new Category</button>
@@ -159,8 +165,8 @@ return(
                   <td>{category.id}</td>
                   <td>{category.name}</td>
                   <td>
-                     <button className="btn btn-primary" onClick={()=>selectCategory(category, "Edite")}>Edite</button>{"  "}
-                     <button className="btn btn-danger" onClick={()=>selectCategory(category, "Delete")}>Delete</button>
+                     <button className="btn btn-primary" onClick={()=>selectCategory(category, "Edite")}><FontAwesomeIcon icon={faEdit} /></button>{"  "}
+                     <button className="btn btn-primary" onClick={()=>selectCategory(category, "Delete")}><FontAwesomeIcon icon={faTrashAlt} /></button>
                   </td>
                </tr>
             ))}
@@ -178,8 +184,8 @@ return(
             </div>
          </ModalBody>
          <ModalFooter>
-            <button onClick={()=>postRequest()} className="btn btn-primary">Insert</button>
-            <button onClick={()=>openCloseModalInsert()} className="btn btn-danger">Cancel</button>
+            <button onClick={()=>postRequest()} className="btn btn-primary"><FontAwesomeIcon icon={faSave} /></button>
+            <button onClick={()=>openCloseModalInsert()} className="btn btn-primary"><FontAwesomeIcon icon={faWindowClose} /></button>
          </ModalFooter>
       </Modal>
 
@@ -199,8 +205,8 @@ return(
             </div>
          </ModalBody>
          <ModalFooter>
-            <button onClick={()=>putRequest()} className="btn btn-primary">Edite</button>
-            <button onClick={()=>openCloseModalEdite()} className="btn btn-danger">Cancel</button>
+            <button onClick={()=>putRequest()} className="btn btn-primary"><FontAwesomeIcon icon={faEdit} /></button>
+            <button onClick={()=>openCloseModalEdite()} className="btn btn-primary"><FontAwesomeIcon icon={faWindowClose} /></button>
          </ModalFooter>
       </Modal>
 
@@ -209,8 +215,8 @@ return(
             ¿Do you want to delete the category {categorySelected && categorySelected.name}
          </ModalBody>
          <ModalFooter>
-            <button className="btn btn-danger" onClick={()=>deleteRequest()}>Yes</button>
-            <button className="btn ntn-secondary" onClick={()=>openCloseModalDelete()}>No</button>
+            <button className="btn btn-danger" onClick={()=>deleteRequest()}><FontAwesomeIcon icon={faTrashAlt} /></button>
+            <button className="btn btn-primary" onClick={()=>openCloseModalDelete()}><FontAwesomeIcon icon={faWindowClose} /></button>
          </ModalFooter>
       </Modal>
    </div>

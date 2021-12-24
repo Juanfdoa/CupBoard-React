@@ -47,38 +47,16 @@ return (
    <div className="App">
       {user === null && Authorization()}
       <div className="container">
+         <center><h1>Reports</h1></center><br />
          <div className="row">
             <div className="col-md-6">
-            <center><h3>EXPIRED PRODUCTS</h3></center>
-      <table className="table table-bordered">
-         <thead>
-            <tr>
-               <td>ID</td>
-               <td>PRODUCT</td>
-               <td>EXPIRE DATE</td>
-               <td>QUANTITY</td>
-            </tr>
-         </thead>
-         <tbody>
-         {expired.map(expired =>(
-               <tr key={expired.id}>
-                  <td>{expired.id}</td>
-                  <td>{expired.productId}</td>
-                  <td style={{backgroundColor:"red"}}>{expired.expireDate}</td>
-                  <td>{expired.quantity}</td>
-               </tr>
-            ))}
-         </tbody>
-      </table>
-            </div>
-            <div className="col-md-6">
-               <center><h3>PRODUCTS EXPIRE IN 5 DAYS</h3></center>
+            <center><h3>PRODUCTS ABOUT TO EXPIRE</h3></center>
                <table className="table table-bordered">
                   <thead>
                      <tr>
                         <td>ID</td>
                         <td>PRODUCT</td>
-                        <td >EXPIRE DATE</td>
+                        <td>EXPIRE DATE</td>
                         <td>QUANTITY</td>
                      </tr>
                   </thead>
@@ -86,9 +64,32 @@ return (
                   {expire5.map(expire=>(
                         <tr key={expire.id}>
                            <td>{expire.id}</td>
-                           <td>{expire.productId}</td>
-                           <td style={{backgroundColor:"yellow"}}>{expire.expireDate}</td>
+                           <td>{expire?.product?.name}</td>
+                           <td>{expire.expireDate}</td>
                            <td>{expire.quantity}</td>
+                        </tr>
+                     ))}
+                  </tbody>
+               </table>
+            </div>
+            <div className="col-md-6">
+            <center><h3>PRODUCTS EXPIRED</h3></center>
+               <table className="table table-bordered">
+                  <thead>
+                     <tr>
+                        <td>ID</td>
+                        <td>PRODUCT</td>
+                        <td>EXPIRE DATE</td>
+                        <td>QUANTITY</td>
+                     </tr>
+                  </thead>
+                  <tbody>
+                  {expired.map(expired =>(
+                        <tr key={expired.id}>
+                           <td>{expired.id}</td>
+                           <td>{expired?.product?.name}</td>
+                           <td>{expired.expireDate}</td>
+                           <td>{expired.quantity}</td>
                         </tr>
                      ))}
                   </tbody>

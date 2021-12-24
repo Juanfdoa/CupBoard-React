@@ -1,204 +1,89 @@
 import React, {useState , useEffect} from 'react';
+import products from '../assets/img/products.jpg';
+import alert from '../assets/img/alert.png';
+import expire from '../assets/img/expire_products.jpg'
 import axios from 'axios';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import { Modal, ModalBody, ModalFooter } from 'reactstrap';
-import swal from 'sweetalert';
-import LoginService from "../Services/Login";
+
+
 
 function Home() {
 
-const [cupBoard, setCupBoard]= useState([]);
-const [expired, setExpired]= useState([]);
-const [expire5, setExpire5]= useState([]);
+   const [cupBoard, setCupBoard]= useState([]);
+   const [expired, setExpired]= useState([]);
+   const [expire5, setExpire5]= useState([]);
 
-const [data, setData]= useState([]);
-const [modalRegister, setModalRegister]=useState(false);
-const [userSelected, setUserSelected]= useState({
-   email:'',
-   password:''
-})
+   let user1 = JSON.parse(sessionStorage.getItem('token'));
+   const token = user1;
 
-const [email, setEmail]= useState('');
-const [password, setPassword]= useState('');
-const [user, setUser]= useState(null);
-
-let user1 = JSON.parse(sessionStorage.getItem('token'));
-const token = user1;
-
-const getRequest = async () =>{
-   await axios.get("https://localhost:44374/api/cupboard", {headers:{'Authorization': 'Bearer '+ token}})
-   .then(response =>{
-      setCupBoard(response.data.$values);
-      console.log(response.data.$values)
-   }).catch(error => {
-      console.log(error);
-   })
-}
-
-const getExpired = async () =>{
-   await axios.get("https://localhost:44374/api/cupboard/expire", {headers:{'Authorization': 'Bearer '+ token}})
-   .then(response =>{
-      setExpired(response.data.expired.$values);
-      setExpire5(response.data.expire5Days.$values);
-      console.log(response.data.expired.$values);
-      console.log(response.data.expire5Days.$values);
-   }).catch(error => {
-      console.log(error);
-   })
-}
- 
-useEffect(()=>{
-    getRequest()
-    getExpired()
-},[])
-
-
-const handleChange=e=>{
-   const{name , value}=e.target;
-   setUserSelected({
-      ...userSelected,
-      [name]: value
-   });
-   console.log(userSelected);
-}
-
-const openCloseModalRegister= ()=>{
-   setModalRegister(!modalRegister)
-}
-
-const postRequest = async () =>{
-   await axios.post("https://localhost:44374/api/cuentas/registrar", userSelected)
-   .then(response =>{
-      setData(data.concat(response.data));
-      console.log(response.data.$values);
-      swal({
-         text:"your registration was successful",
-         icon:"success",
-         button:"Accept",
-         timer: 4000
-      });
-      openCloseModalRegister();
-   }).catch(error => {
-      console.log(error);
-   })
-}
+   const getRequest = async () =>{
+      await axios.get("https://localhost:44374/api/cupboard", {headers:{'Authorization': 'Bearer '+ token}})
+      .then(response =>{
+         setCupBoard(response.data.$values);
+         console.log(response.data.$values)
+      }).catch(error => {
+         console.log(error);
+      })
+   }
+   
+   const getExpired = async () =>{
+      await axios.get("https://localhost:44374/api/cupboard/expire", {headers:{'Authorization': 'Bearer '+ token}})
+      .then(response =>{
+         setExpired(response.data.expired.$values);
+         setExpire5(response.data.expire5Days.$values);
+         console.log(response.data.expired.$values);
+         console.log(response.data.expire5Days.$values);
+      }).catch(error => {
+         console.log(error);
+      })
+   }
+    
+   useEffect(()=>{
+       getRequest()
+       getExpired()
+   },[])
 
 
 
-const products=()=>{
-   var total = cupBoard.length;
-   swal({
-      title:"CupBoard",
-      text: "Quantity of products: " + total,
-      icon:"success",
-      button: "Details",
-   }).then(function() {
-      window.location = "/CupBoard";
-  });
-}
-
-const expiredProducts=()=>{
-   var total = expired.length;
-   swal({
-      title:"CupBoard",
-      text: "Expired products: " + total,
-      icon:"error",
-      button: "Details",
-   }).then(function() {
-      window.location = "/Reports";
-  });
-}
-
-const expire5Days=()=>{
-   var total = expire5.length;
-   swal({
-      title:"CupBoard",
-      text: "Products expire in 5 days: " + total,
-      icon:"warning",
-      button: "Details",
-   }).then(function() {
-      window.location = "/Reports";
-  });
-}
-
-const handleLogin= async (event)=>{
-   event.preventDefault()
-  try {
-   const user = LoginService.login({
-       email,
-       password
-   })
-
-   sessionStorage.setItem('token',JSON.stringify((await user).data.token))
-
-   setUser(user)
-   setEmail('')
-   setPassword('')
-   swal({
-      text:"Welcome",
-      icon:"success",
-      button:"Accept",
-      timer: 4000
-   }).then(function() {
-      window.location = "/products";
-   });
-
-   console.log(user)
-  } catch (error) {
-      console.log(error);
-  }
-}
-
-return (
-   <div className="App">
-      <div className="container">
-         <div className="row">
-            <div className="col-md-6">
-               <div>
-               <button className="btn btn-success" onClick={()=>products()}>Existing products on the cupboard</button><br /><br />
-               <button className="btn btn-warning" onClick={()=>expire5Days()}>5 days to expire</button><br /><br />
-               <button className="btn btn-danger" onClick={()=>expiredProducts()}>Expired Products</button>
+   return(
+      <div className="App">
+         <br /><br /><br /><br /><br />
+         <div className="container">
+            <div className="row">
+               <div className="col-md-4">
+                  <div classname="card" styled="width: 10rem">
+                     <img src={products} classname="card-img-top" width="400" height="300" />
+                     <div classname="card-body">
+                        <center><h3 classname="card-title">Products on Cupboard</h3></center>
+                        <center><h2>{cupBoard.length}</h2></center>
+                        <center><a href="/CupBoard" class="btn btn-primary">Details</a></center>
+                     </div>
+                  </div>
                </div>
-
-            </div>
-
-            <div className="col-md-6">
-               <div>
-                  <div className="form-group mt-5">
-                     <form onSubmit={handleLogin}>
-                     <input type="email" value={email} name="email" onChange={({target})=> setEmail(target.value)} placeholder="Email" className="form-control" />
-                     <br />
-                     <input type="password" value={password} name="password" onChange={({target})=> setPassword(target.value)} placeholder="Password" className="form-control"/>
-                     <br />
-                     <center><button className="btn btn-primary" >Log in</button></center>
-                     </form>
-                  </div>    
+               <div className="col-md-4">
+                  <div classname="card" styled="width: 18rem">
+                     <img src={alert} classname="card-img-top" width="400" height="300"/>
+                     <div classname="card-body">
+                        <center><h3 classname="card-title">products about to expire </h3></center>
+                        <center><h2>{expire5.length}</h2></center>
+                        <center><a href="/Reports" class="btn btn-primary">Details</a></center>
+                     </div>
+                  </div>
                </div>
-               <hr />
-               <center><button className="btn btn-success" onClick={()=>openCloseModalRegister()}>Create new account</button></center>
-               <Modal isOpen={modalRegister}>
-                  <ModalBody>
-                  <h2>Sign up</h2>
-                  <div className="form-group">
-                     <label>Email</label>
-                     <br />
-                     <input type="email" className="form-control" name="email" onChange={handleChange}/>
-                     <br />
-                     <label>password</label>
-                     <br />
-                     <input type="password" className="form-control" name="password" onChange={handleChange}/>
-                  </div> 
-                  </ModalBody>
-                  <ModalFooter>
-                  <button className="btn btn-success" onClick={()=>postRequest()}>Sign up</button>
-                  <button className="btn btn-danger" onClick={()=>openCloseModalRegister()}>Cancel</button>
-                  </ModalFooter>
-               </Modal>
+               <div className="col-md-4">
+                  <div classname="card" styled="width: 18rem">
+                     <img src={expire} classname="card-img-top" width="400" height="300" />
+                     <div classname="card-body">
+                        <center><h3 classname="card-title">Products expired</h3></center>
+                        <center><h2>{expired.length}</h2></center>
+                        <center><a href="/Reports" class="btn btn-primary">Details</a></center>
+                     </div>
+                  </div>
+               </div>
             </div>
          </div>
       </div>
-   </div>
-)
+   );
+   
 }
 
 export default Home;

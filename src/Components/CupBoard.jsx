@@ -3,8 +3,12 @@ import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
 import swal from 'sweetalert';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faTrashAlt, faEdit, faWindowClose, faSave} from '@fortawesome/free-solid-svg-icons';
 
 function CupBoard() {
+const [cupBoard, setCupBoard]= useState([]);
+const [search, setSearch]= useState("");
 
 const url =("https://localhost:44374/api/cupboard");
 const [data , setData] = useState ([]);
@@ -29,6 +33,8 @@ const handleChange=e=>{
       [name]: value
    });
    console.log(cupBoardSelected);
+   setSearch(e.target.value);
+   filter(e.target.value);
 }
 
 
@@ -84,8 +90,6 @@ useEffect(()=>{
 },[])
 
 const postRequest = async () =>{
-   //delete cupBoardSelected.id;
-  // cupBoardSelected.quantity = parseInt(cupBoardSelected.quantity);
    await axios.post(url, cupBoardSelected, {headers:{'Authorization': 'Bearer '+ token}})
    .then(response =>{
       //setData(data.concat(response.data));
@@ -110,6 +114,7 @@ const putRequest = async () =>{
             cupBoard.statusId = answer.statusId;
          }
       });
+      getRequest();
       openCloseModalEdite();
    }).catch(error => {
       console.log(error);
@@ -120,6 +125,7 @@ const deleteRequest = async () =>{
    await axios.delete(url + "/" + cupBoardSelected.id, {headers:{'Authorization': 'Bearer '+ token}})
    .then(response =>{
       setData(data.filter(cupBoard => cupBoard.id !== response.data));
+      getRequest();
       openCloseModalDelete();
    }).catch(error=>{
       console.log(error);
@@ -130,6 +136,21 @@ const selectCupBoard=(cupBoard, caso)=>{
    setCupBoardSelected(cupBoard);
    (caso === "Edite")?
    openCloseModalEdite(): openCloseModalDelete();
+}
+
+const filter=(searchTearm)=>{
+   var searchResult = data.filter((element)=>{
+      if(element.product.name.toString().toLowerCase().includes(searchTearm.toLowerCase())){
+         return element;
+      }
+      if(element.expireDate.toString().toLowerCase().includes(searchTearm.toLowerCase())){
+         return element;
+      }
+      if(element.quantity.toString().toLowerCase().includes(searchTearm.toLowerCase())){
+         return element;
+      }
+   });
+   setCupBoard(searchResult);
 }
 
 const Authorization=()=>{
@@ -143,10 +164,27 @@ const Authorization=()=>{
   });
 }
 return(
-   <div className="App">
+   <div className="App container">
       {user === null && Authorization()}
-      <button onClick={()=>openCloseModalInsert()} className="btn btn-success" >Insert new CupBoard</button>
-      <br /><br />
+      <div className="container">
+         <h1>CupBoard</h1>
+         <div className="row">
+            <div className="col-md-6">
+            <button onClick={()=>openCloseModalInsert()} className="btn btn-success" >Insert new CupBoard</button>
+            <br /><br />
+            </div>
+            <div className="col-md-6">
+              <div className="containerInput">
+                 <input
+                 className="form-control inputBuscar"
+                 value={search}
+                 placeholder="Search by product name, expire date, or quantity"
+                 onChange={handleChange}
+               />
+            </div>   
+            </div>
+         </div>
+      </div> 
       <table className="table Table-bordered">
          <thead>
             <tr>
@@ -159,7 +197,7 @@ return(
             </tr>
          </thead>
          <tbody>
-            {data.map((cupboard) =>(
+            {cupBoard && data.map((cupboard) =>(
                <tr key={cupboard.id}>
                   <td>{cupboard.id}</td>
                   <td>{cupboard?.product?.name}</td>
@@ -167,8 +205,8 @@ return(
                   <td>{cupboard.quantity}</td>
                   <td>{cupboard.statusId}</td>
                   <td>
-                     <button className="btn btn-primary" onClick={()=>selectCupBoard(cupboard, "Edite")}>Edite</button>{"  "}
-                     <button className="btn btn-danger" onClick={()=>selectCupBoard(cupboard, "Delete")}>Delete</button>
+                     <button className="btn btn-primary" onClick={()=>selectCupBoard(cupboard, "Edite")}><FontAwesomeIcon icon={faEdit} /></button>{"  "}
+                     <button className="btn btn-primary" onClick={()=>selectCupBoard(cupboard, "Delete")}><FontAwesomeIcon icon={faTrashAlt} /></button>
                   </td>
                </tr>
             ))}
@@ -213,8 +251,8 @@ return(
             </div>
          </ModalBody>
          <ModalFooter>
-            <button className="btn btn-primary" onClick={()=>postRequest()}>Save</button>
-            <button className="btn btn-danger" onClick={()=>openCloseModalInsert()}>Cancel</button>
+            <button className="btn btn-primary" onClick={()=>postRequest()}><FontAwesomeIcon icon={faSave} /></button>
+            <button className="btn btn-primary" onClick={()=>openCloseModalInsert()}><FontAwesomeIcon icon={faWindowClose} /></button>
          </ModalFooter>
       </Modal>
 
@@ -228,7 +266,7 @@ return(
                <label>Product</label>
                <br />
                <select name="productId" className="form-control" onChange={handleChange}>
-               <option value={cupBoardSelected && cupBoardSelected.productId}>{cupBoardSelected.productId}</option>
+               <option value={cupBoardSelected && cupBoardSelected.productId}>{cupBoardSelected?.product?.name}</option>
                   {
                      product.map(product=>(
                         <option key={product.id} value={product.id}>{product.name}</option>
@@ -257,8 +295,8 @@ return(
             </div>
          </ModalBody>
          <ModalFooter>
-            <button className="btn btn-primary" onClick={()=>putRequest()}>Save</button>
-            <button className="btn btn-danger" onClick={()=>openCloseModalEdite()}>Cancel</button>
+            <button className="btn btn-primary" onClick={()=>putRequest()}><FontAwesomeIcon icon={faEdit} /></button>
+            <button className="btn btn-primary" onClick={()=>openCloseModalEdite()}><FontAwesomeIcon icon={faWindowClose} /></button>
          </ModalFooter>
       </Modal>
 
@@ -267,8 +305,8 @@ return(
             ¿Do you want to delete the CupBoard {cupBoardSelected && cupBoardSelected.id}
          </ModalBody>
          <ModalFooter>
-            <button className="btn btn-danger" onClick={()=>deleteRequest()}>Yes</button>
-            <button className="btn ntn-secondary" onClick={()=>openCloseModalDelete()}>No</button>
+            <button className="btn btn-danger" onClick={()=>deleteRequest()}><FontAwesomeIcon icon={faTrashAlt} /></button>
+            <button className="btn btn-primary" onClick={()=>openCloseModalDelete()}><FontAwesomeIcon icon={faWindowClose} /></button>
          </ModalFooter>
       </Modal>
 
